@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spitzer Online - 4-Player Match Edition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #124e2c;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { margin-bottom: 5px; }
+        #scoreboard {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 25px;
+            font-size: 1.05em;
+        }
+        #game-container {
+            width: 950px;
+            height: 600px;
+            background: #0f3d22;
+            border: 4px solid #d4af37;
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .seat-top { text-align: center; font-weight: bold; color: #f3c64f; }
+        .bot-hand-preview {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 4px;
+            min-height: 40px;
+        }
+        .middle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .seat-side { font-weight: bold; color: #f3c64f; width: 150px; text-align: center; }
+        .mini-card {
+            width: 30px;
+            height: 42px;
+            background: white;
+            color: black;
+            border-radius: 3px;
+            font-size: 0.65em;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .mini-card.red { color: #d32f2f; }
+        #center-table {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 190px;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 10px;
+            width: 450px;
+        }
+        .card {
+            width: 65px;
+            height: 95px;
+            background: white;
+            color: black;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px;
+            font-weight: bold;
+            font-size: 1em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card.red { color: #d32f2f; }
+        #player-hand {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            min-height: 105px;
+            flex-wrap: wrap;
+        }
+        #control-panel {
+            margin-top: 15px;
+            text-align: center;
+        }
+        button {
+            background-color: #d4af37;
+            color: #0f3d22;
+            border: none;
+            padding: 10px 18px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #f3c64f; }
+        #log {
+            margin-top: 15px;
+            width: 950px;
+            height: 110px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 6px;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Spitzer 4-Player Match Edition</h1>
+    <div id="scoreboard">
+        <div>Game: <span id="current-game">1</span> / 3 (Target: 42 pts)</div>
+        <div>Dealer: <span id="dealer-label">-</span></div>
+        <div>Leader: <span id="leader-label">-</span></div>
+    </div>
+
+    <div id="game-container">
+        <!-- Top Bot Seat -->
+        <div class="seat-top">
+            <div id="seat-top-label">Bot 3 (Pts: 0)</div>
+            <div class="bot-hand-preview" id="bot3-hand-preview"></div>
+        </div>
+
+        <div class="middle-row">
+            <!-- Left Bot Seat -->
+            <div class="seat-side">
+                <div id="seat-left-label">Bot 2 (Pts: 0)</div>
+                <div class="bot-hand-preview" id="bot2-hand-preview" style="flex-direction: column; align-items: center;"></div>
+            </div>
+
+            <!-- Center Table -->
+            <div id="center-table"></div>
+
+            <!-- Right Bot Seat -->
+            <div class="seat-side">
+                <div id="seat-right-label">Bot 4 (Pts: 0)</div>
+                <div class="bot-hand-preview" id="bot4-hand-preview" style="flex-direction: column; align-items: center;"></div>
+            </div>
+        </div>
+
+        <!-- Your Seat -->
+        <div class="player-area">
+            <div style="font-weight: bold; margin-bottom: 5px;" id="player-seat-label">Your Hand - You (Pts: 0)</div>
+            <div id="player-hand"></div>
+        </div>
+    </div>
+
+    <div id="control-panel">
+        <button onclick="startNewHand()">Start New Hand</button>
+        <button onclick="declareZolo()">Declare Zolo (Solo)</button>
+        <button onclick="declareSchneider()">Call Schneider</button>
+    </div>
+
+    <div id="log">Welcome! Click 'Start New Hand' to begin the match. Target is 42 points per game across 3 games.</div>
+
+    <script src="game.js"></script>
+</body>
+</html>
